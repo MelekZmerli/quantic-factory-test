@@ -8,6 +8,8 @@ import (
     "os"
     "encoding/json"
     _ "github.com/go-sql-driver/mysql"	
+    "github.com/joho/godotenv"
+
 )
 
 type Row struct {
@@ -38,6 +40,17 @@ type Data struct {
 	Facet_groups []FacetField `json:"facet_groups"`
 }
 
+func envVariable(key string) string {
+	
+	err := godotenv.Load(".env")
+
+	if err != nil {
+        	log.Fatal("Error loading .env file")
+    	}
+
+  return os.Getenv(key)
+}
+
 func extract(url string) string {
 	response, err := http.Get(url)
 
@@ -66,7 +79,9 @@ func transform(response string) {
 
 func main() {
 
-	var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset=secteurs-des-bureaux-de-vote-en-2021&q=&rows=0&facet=arrondissement"
-	transform(extract(url))
+	/*var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset=secteurs-des-bureaux-de-vote-en-2021&q=&rows=0&facet=arrondissement"
+	transform(extract(url))*/
+	
+	fmt.Println(envVariable("MYSQL_PORT"))
 
 }
