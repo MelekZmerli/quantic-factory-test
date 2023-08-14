@@ -77,11 +77,29 @@ func transform(response string) {
 	}
 }
 
+func load() string{
+	db_path := envVariable("MYSQL_USER")+":"+envVariable("MYSQL_PASSWORD")+"@tcp(127.0.0.1:"+envVariable("MYSQL_PORT")+")/"+envVariable("MYSQL_DATABASE")
+    /*db, err := sql.Open("mysql",db_path)
+    if err != nil {
+        panic(err.Error())
+    }
+    defer db.Close()
+    insert, err := db.Query("INSERT INTO testtable2 VALUES('23')")
+    if err !=nil {
+        panic(err.Error())
+    }
+    defer insert.Close()
+    fmt.Println("Yay, values added!")
+}*/
+return db_path
+}
+
+
 func main() {
 
 	/*var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset=secteurs-des-bureaux-de-vote-en-2021&q=&rows=0&facet=arrondissement"
 	transform(extract(url))*/
 	
-	fmt.Println(envVariable("MYSQL_PORT"))
+	fmt.Println(load())
 
 }
