@@ -1,4 +1,4 @@
-package main
+ package main
 
 import (
     "fmt"
@@ -7,6 +7,7 @@ import (
     "net/http"
     "os"
     "encoding/json"
+    _ "github.com/go-sql-driver/mysql"	
 )
 
 type Row struct {
