@@ -6,10 +6,10 @@ USE `elections`;
 
 CREATE TABLE BureauxDeVote (
     Arrondissement int,
-    y2012 int,
-    y2014 int,
-    y2017 int,
-    y2020 int,
-    y2021 int,
-    y2022 int,
+    Y2012 int,
+    Y2014 int,
+    Y2017 int,
+    Y2020 int,
+    Y2021 int,
+    Y2022 int,
 );
