@@ -6,6 +6,8 @@ import (
     "log"
     "net/http"
     "os"
+    "strings"
+    "database/sql"
     "encoding/json"
     _ "github.com/go-sql-driver/mysql"	
     "github.com/joho/godotenv"
@@ -66,40 +68,47 @@ func extract(url string) string {
    	return string(responseData)
 }
 
-func transform(response string) {
+func transform(response string) map[string]int {
 	var data Data
-	json.Unmarshal([]byte(response), &data)
-    	fmt.Printf("Data : %+v", data.Facet_groups[0].Facets)
+	m := make(map[string]int)
 
-    	for _,value := range data.Facet_groups[0].Facets{
-	fmt.Print(value.Arrondissement,": ")
-	fmt.Println(value.Count)
+	json.Unmarshal([]byte(response), &data)
+	for _,value := range data.Facet_groups[0].Facets{
+	    m[value.Arrondissement] = value.Count
 	}
+
+    	return m
 }
 
-func load() string{
-	db_path := envVariable("MYSQL_USER")+":"+envVariable("MYSQL_PASSWORD")+"@tcp(127.0.0.1:"+envVariable("MYSQL_PORT")+")/"+envVariable("MYSQL_DATABASE")
-    /*db, err := sql.Open("mysql",db_path)
+func load(rows map[string]int) string{
+    db_path := envVariable("MYSQL_USER")+":"+envVariable("MYSQL_PASSWORD")+"@tcp(127.0.0.1:"+envVariable("MYSQL_PORT")+")/"+envVariable("MYSQL_DATABASE")
+    db, err := sql.Open("mysql",db_path)
     if err != nil {
         panic(err.Error())
     }
     defer db.Close()
-    insert, err := db.Query("INSERT INTO testtable2 VALUES('23')")
-    if err !=nil {
-        panic(err.Error())
-    }
-    defer insert.Close()
+
+    query := "INSERT INTO BureauxDeVote(Arrondissement, Y2021) VALUES"
+    var inserts []string
+    var params []interface{}
+    for key, element := range rows {
+        inserts = append(inserts, "(?, ?),")
+        params = append(params, key, element)
+    }  
+    query = query + strings.TrimSuffix(inserts[len(inserts)-1],",")
+    fmt.Println(query)
+    //_, err := db.Exec(query, params)
+    
     fmt.Println("Yay, values added!")
-}*/
+
 return db_path
 }
 
 
 func main() {
 
-	/*var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset=secteurs-des-bureaux-de-vote-en-2021&q=&rows=0&facet=arrondissement"
-	transform(extract(url))*/
-	
-	fmt.Println(load())
+	var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset=secteurs-des-bureaux-de-vote-en-2021&q=&rows=0&facet=arrondissement"
+	data := transform(extract(url))
+	//load(data)
 
 }
