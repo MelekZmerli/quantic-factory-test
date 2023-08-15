@@ -4,6 +4,7 @@ import (
     "fmt"
     "io/ioutil"
     "log"
+    "regexp"
     "bufio"
     "net/http"
     "os"
@@ -49,15 +50,23 @@ func check(e error) {
     }
 }
 
-func get_urls(filename string){
+func get_urls(filename string) map[string]string{
+    urls := make(map[string]string)
+    re := regexp.MustCompile(`20[0-2][0-9]`)
     file, err := os.Open(filename)
     check(err)
     defer file.Close()
-
+    
     scanner := bufio.NewScanner(file)
     for scanner.Scan() {
-        fmt.Println(scanner.Text())
+	url := scanner.Text()
+        year := re.FindStringSubmatch(url)[0]
+	urls[year] = url
     }
+    err1 := scanner.Err()
+    check(err1)
+
+    return urls
 }
 
 func envVariable(key string) string {
@@ -117,7 +126,7 @@ for res.Next() {
 
     check(err)
 
-    res, err := stmt.Exec(params...)  
+    res, err := stmt.Exec(params...)   
     check(err)
     fmt.Println(res)*/
     defer db.Close()
@@ -126,7 +135,7 @@ for res.Next() {
 
 func main() {
 
-	/*var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset=secteurs-des-bureaux-de-vote-en-2021&q=&rows=0&facet=arrondissement"
+	/*var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset="
 	data := transform(extract(url))
 	load(data)*/
 	get_urls("./urls.txt")
