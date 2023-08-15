@@ -51,6 +51,7 @@ func check(e error) {
 }
 
 func get_urls(filename string) map[string]string{
+    uri := "https://opendata.paris.fr/api/records/1.0/search/?dataset="
     urls := make(map[string]string)
     re := regexp.MustCompile(`20[0-2][0-9]`)
     file, err := os.Open(filename)
@@ -59,7 +60,7 @@ func get_urls(filename string) map[string]string{
     
     scanner := bufio.NewScanner(file)
     for scanner.Scan() {
-	url := scanner.Text()
+	url := uri + scanner.Text()
         year := re.FindStringSubmatch(url)[0]
 	urls[year] = url
     }
@@ -134,10 +135,12 @@ for res.Next() {
 
 
 func main() {
+	urls := get_urls("./urls.txt")
+	for _,element := range(urls){
+		go transform(extract(element))
+	}	
+	/*data := transform(extract(url))
 
-	/*var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset="
-	data := transform(extract(url))
 	load(data)*/
-	get_urls("./urls.txt")
 
 }
