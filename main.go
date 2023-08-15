@@ -44,6 +44,7 @@ type Data struct {
 	Facet_groups []FacetField `json:"facet_groups"`
 }
 
+// check for errors 
 func check(e error) {
     if e != nil {
         log.Fatal(e)
@@ -98,6 +99,7 @@ func extract(url string) string {
    	return string(responseData)
 }
 
+// extract arondissement number and total count of bureaux de votes from api response
 func transform(response string) map[string]int {
 	var data Data
 	m := make(map[string]int)
@@ -124,6 +126,7 @@ for res.Next() {
     res.Scan(&table)
     fmt.Println(table)
 }
+    // NOTE: 2nd column to be changed into key value of get_urls map
     query := "INSERT INTO BureauxDeVote(Arrondissement, Y2021) VALUES"
     var inserts []string
     var params []interface{}
