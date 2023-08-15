@@ -1,4 +1,4 @@
- package main
+package main
 
 import (
     "fmt"
@@ -9,7 +9,7 @@ import (
     "strings"
     "database/sql"
     "encoding/json"
-    _ "github.com/go-sql-driver/mysql"	
+    "github.com/go-sql-driver/mysql"	
     "github.com/joho/godotenv"
 
 )
@@ -42,13 +42,17 @@ type Data struct {
 	Facet_groups []FacetField `json:"facet_groups"`
 }
 
+func check(e error) {
+    if e != nil {
+        panic(e)
+    }
+}
+
 func envVariable(key string) string {
 	
 	err := godotenv.Load(".env")
 
-	if err != nil {
-        	log.Fatal("Error loading .env file")
-    	}
+	check(err)
 
   return os.Getenv(key)
 }
@@ -56,15 +60,10 @@ func envVariable(key string) string {
 func extract(url string) string {
 	response, err := http.Get(url)
 
-	if err != nil {
-        	fmt.Print(err.Error())
-        	os.Exit(1)
-    	}
+	check(err)
 
     	responseData, err := ioutil.ReadAll(response.Body)
-    	if err != nil {
-        	log.Fatal(err)
-    	}
+    	check(err)
    	return string(responseData)
 }
 
@@ -80,28 +79,36 @@ func transform(response string) map[string]int {
     	return m
 }
 
-func load(rows map[string]int) string{
+func load(rows map[string]int){
     db_path := envVariable("MYSQL_USER")+":"+envVariable("MYSQL_PASSWORD")+"@tcp(127.0.0.1:"+envVariable("MYSQL_PORT")+")/"+envVariable("MYSQL_DATABASE")
     db, err := sql.Open("mysql",db_path)
-    if err != nil {
-        panic(err.Error())
-    }
-    defer db.Close()
+    check(err)
+res, err := db.Query("SHOW TABLES")
+check(err)
 
+var table string
+
+for res.Next() {
+    res.Scan(&table)
+    fmt.Println(table)
+}
     query := "INSERT INTO BureauxDeVote(Arrondissement, Y2021) VALUES"
     var inserts []string
     var params []interface{}
-    for key, element := range rows {
-        inserts = append(inserts, "(?, ?),")
-        params = append(params, key, element)
-    }  
-    query = query + strings.TrimSuffix(inserts[len(inserts)-1],",")
-    fmt.Println(query)
-    //_, err := db.Exec(query, params)
     
-    fmt.Println("Yay, values added!")
+    for key, element := range rows {
+        inserts = append(inserts, "(?, ?)")
+        params = append(params, key, element)
+    }
+    query = query + strings.Join(inserts,",")
+    /*stmt, err := db.Prepare(query)
 
-return db_path
+    check(err)
+
+    res, err := stmt.Exec(params...)  
+    check(err)
+    fmt.Println(res)*/
+    defer db.Close()
 }
 
 
@@ -109,6 +116,6 @@ func main() {
 
 	var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset=secteurs-des-bureaux-de-vote-en-2021&q=&rows=0&facet=arrondissement"
 	data := transform(extract(url))
-	//load(data)
+	load(data)
 
 }
