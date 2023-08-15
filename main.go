@@ -4,12 +4,13 @@ import (
     "fmt"
     "io/ioutil"
     "log"
+    "bufio"
     "net/http"
     "os"
     "strings"
     "database/sql"
     "encoding/json"
-    "github.com/go-sql-driver/mysql"	
+    _ "github.com/go-sql-driver/mysql"	
     "github.com/joho/godotenv"
 
 )
@@ -44,7 +45,18 @@ type Data struct {
 
 func check(e error) {
     if e != nil {
-        panic(e)
+        log.Fatal(e)
+    }
+}
+
+func get_urls(filename string){
+    file, err := os.Open(filename)
+    check(err)
+    defer file.Close()
+
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+        fmt.Println(scanner.Text())
     }
 }
 
@@ -114,8 +126,9 @@ for res.Next() {
 
 func main() {
 
-	var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset=secteurs-des-bureaux-de-vote-en-2021&q=&rows=0&facet=arrondissement"
+	/*var url = "https://opendata.paris.fr/api/records/1.0/search/?dataset=secteurs-des-bureaux-de-vote-en-2021&q=&rows=0&facet=arrondissement"
 	data := transform(extract(url))
-	load(data)
+	load(data)*/
+	get_urls("./urls.txt")
 
 }
