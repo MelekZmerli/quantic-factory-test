@@ -49,11 +49,18 @@ func check(e error) {
         log.Fatal(e)
     }
 }
+// get year from string
+func get_year(url string) string{
+   re := regexp.MustCompile(`20[0-2][0-9]`)
+   year := re.FindStringSubmatch(url)[0]
+   return year
+}
 
+// get urls and year of dataset from url 
 func get_urls(filename string) map[string]string{
     uri := "https://opendata.paris.fr/api/records/1.0/search/?dataset="
     urls := make(map[string]string)
-    re := regexp.MustCompile(`20[0-2][0-9]`)
+    
     file, err := os.Open(filename)
     check(err)
     defer file.Close()
@@ -61,7 +68,7 @@ func get_urls(filename string) map[string]string{
     scanner := bufio.NewScanner(file)
     for scanner.Scan() {
 	url := uri + scanner.Text()
-        year := re.FindStringSubmatch(url)[0]
+        year := get_year(url)
 	urls[year] = url
     }
     err1 := scanner.Err()
@@ -70,6 +77,7 @@ func get_urls(filename string) map[string]string{
     return urls
 }
 
+// get environment variable from .env file
 func envVariable(key string) string {
 	
 	err := godotenv.Load(".env")
@@ -79,6 +87,7 @@ func envVariable(key string) string {
   return os.Getenv(key)
 }
 
+// extract data using api 
 func extract(url string) string {
 	response, err := http.Get(url)
 
@@ -101,6 +110,7 @@ func transform(response string) map[string]int {
     	return m
 }
 
+// load data into sql table
 func load(rows map[string]int){
     db_path := envVariable("MYSQL_USER")+":"+envVariable("MYSQL_PASSWORD")+"@tcp(127.0.0.1:"+envVariable("MYSQL_PORT")+")/"+envVariable("MYSQL_DATABASE")
     db, err := sql.Open("mysql",db_path)
