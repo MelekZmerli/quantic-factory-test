@@ -48,9 +48,23 @@ type Data struct {
 	Facet_groups []FacetField `json:"facet_groups"`
 }
 
+// contains fields from .env file
 type Environement struct {
-    
+    Database string
+    User string
+    Password string
+    Port string
 }
+
+func NewEnvironement() *Environement{
+	return &Environement{
+	    Database: envVariable("MYSQL_DATABASE"),
+	    User: envVariable("MYSQL_USER"),
+	    Password: envVariable("MYSQL_PASSWORD"),
+	    Port: envVariable("MYSQL_PORT"),
+	}
+}
+
 
 // check for errors 
 func check(e error) {
@@ -123,7 +137,8 @@ func transform(response string) map[string]int {
 
 // load data into sql table
 func load(rows map[string]int){
-    db_path := envVariable("MYSQL_USER")+":"+envVariable("MYSQL_PASSWORD")+"@tcp(127.0.0.1:"+envVariable("MYSQL_PORT")+")/"+envVariable("MYSQL_DATABASE")
+    env := NewEnvironement()
+    db_path := env.User+":"+env.Password+"@tcp(127.0.0.1:"+env.Port+")/"+env.Database
     db, err := sql.Open("mysql",db_path)
     check(err)
 res, err := db.Query("SHOW TABLES")
