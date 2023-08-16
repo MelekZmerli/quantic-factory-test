@@ -13,22 +13,25 @@ import (
     "encoding/json"
     _ "github.com/go-sql-driver/mysql"	
     "github.com/joho/godotenv"
-
 )
 
-type Row struct {
+// contains the essential data
+type ArrondissementRow struct {
 	Arrondissement string `json:"name"`
 	Count int `json:"count"`
 	State string `json:"state"`
 	Path string `json:"path"`
 } 
 
+// follows facet field format in json response
 type FacetField struct {
 	Name string
-	Facets []Row
+	Facets []ArrondissementRow
 }
 
-type ParametersStruct struct {
+// NOTE: see if can be deprecated
+// follows parameters field format in json response
+type JsonParametersStruct struct {
 	Dataset string
 	Rows int
 	Start int
@@ -37,11 +40,16 @@ type ParametersStruct struct {
 	Timezone string
 }
 
+// follows json response format
 type Data struct {
 	Nhits int `json:"nhits"`
-	Parametres ParametersStruct `json:"parameters"`
+	Parametres JsonParametersStruct `json:"parameters"`
 	Records []string `json:"records"`
 	Facet_groups []FacetField `json:"facet_groups"`
+}
+
+type Environement struct {
+    
 }
 
 // check for errors 
@@ -50,6 +58,7 @@ func check(e error) {
         log.Fatal(e)
     }
 }
+
 // get year from string
 func get_year(url string) string{
    re := regexp.MustCompile(`20[0-2][0-9]`)
@@ -145,7 +154,6 @@ for res.Next() {
     fmt.Println(res)*/
     defer db.Close()
 }
-
 
 func main() {
 	urls := get_urls("./urls.txt")
