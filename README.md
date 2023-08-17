@@ -1,3 +1,3 @@
 # quantic-factory-test
 
-This project aims to create a data pipeline for tracking the evolution of number of poll stations in Paris.
+This project aims to create a data pipeline for tracking the evolution of number of poll stations in Paris using 12-factor app principles.
