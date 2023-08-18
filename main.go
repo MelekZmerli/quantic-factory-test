@@ -75,14 +75,14 @@ func check(e error) {
 }
 
 // get year from string
-func get_year(url string) string{
+func Year(url string) string{
    re := regexp.MustCompile(`20[0-2][0-9]`)
    year := re.FindStringSubmatch(url)[0]
    return year
 }
 
 // get urls and year of dataset from url 
-func get_urls(filename string) map[string]string{
+func Urls(filename string) map[string]string{
     uri := "https://opendata.paris.fr/api/records/1.0/search/?dataset="
     urls := make(map[string]string)
     
@@ -93,7 +93,7 @@ func get_urls(filename string) map[string]string{
     scanner := bufio.NewScanner(file)
     for scanner.Scan() {
 	url := uri + scanner.Text()
-        year := get_year(url)
+        year := Year(url)
 	urls[year] = url
     }
     err1 := scanner.Err()
@@ -151,7 +151,7 @@ func load(rows map[string]int){
         res.Scan(&table)
         fmt.Println(table)
     }
-    // NOTE: 2nd column to be changed into key value of get_urls map
+    // NOTE: 2nd column to be changed into key value of Urls() map
     query := "INSERT INTO BureauxDeVote(Arrondissement, Y2021) VALUES"
     var inserts []string
     var params []interface{}
@@ -172,7 +172,7 @@ func load(rows map[string]int){
 }
 
 func main() {
-	urls := get_urls("./urls.txt")
+	urls := Urls("./urls.txt")
 	for _,element := range(urls){
 	    go transform(extract(element))
 	}	
