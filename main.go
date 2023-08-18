@@ -45,7 +45,7 @@ type Data struct {
 	Nhits int `json:"nhits"`
 	Parametres JsonParametersStruct `json:"parameters"`
 	Records []string `json:"records"`
-	Facet_groups []FacetField `json:"facet_groups"`
+	FacetGroups []FacetField `json:"facet_groups"`
 }
 
 // contains fields from .env file
@@ -56,6 +56,7 @@ type Environement struct {
     Port string
 }
 
+// constructor for environement struct
 func NewEnvironement() *Environement{
 	return &Environement{
 	    Database: envVariable("MYSQL_DATABASE"),
@@ -128,7 +129,7 @@ func transform(response string) map[string]int {
 	m := make(map[string]int)
 
 	json.Unmarshal([]byte(response), &data)
-	for _,value := range data.Facet_groups[0].Facets{
+	for _,value := range data.FacetGroups[0].Facets{
 	    m[value.Arrondissement] = value.Count
 	}
 
@@ -138,18 +139,18 @@ func transform(response string) map[string]int {
 // load data into sql table
 func load(rows map[string]int){
     env := NewEnvironement()
-    db_path := env.User+":"+env.Password+"@tcp(127.0.0.1:"+env.Port+")/"+env.Database
-    db, err := sql.Open("mysql",db_path)
+    dbPath := env.User+":"+env.Password+"@tcp(127.0.0.1:"+env.Port+")/"+env.Database
+    db, err := sql.Open("mysql",dbPath)
     check(err)
-res, err := db.Query("SHOW TABLES")
-check(err)
+    res, err := db.Query("SHOW TABLES")
+    check(err)
 
-var table string
+    var table string
 
-for res.Next() {
-    res.Scan(&table)
-    fmt.Println(table)
-}
+    for res.Next() {
+        res.Scan(&table)
+        fmt.Println(table)
+    }
     // NOTE: 2nd column to be changed into key value of get_urls map
     query := "INSERT INTO BureauxDeVote(Arrondissement, Y2021) VALUES"
     var inserts []string
@@ -173,10 +174,9 @@ for res.Next() {
 func main() {
 	urls := get_urls("./urls.txt")
 	for _,element := range(urls){
-		go transform(extract(element))
+	    go transform(extract(element))
 	}	
 	/*data := transform(extract(url))
 
 	load(data)*/
-
 }
