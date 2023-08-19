@@ -83,6 +83,7 @@ func Year(url string) string{
 
 // get urls and year of dataset from url 
 func Urls(filename string) map[string]string{
+    log.Println("INFO:extracting URLs...")
     uri := "https://opendata.paris.fr/api/records/1.0/search/?dataset="
     urls := make(map[string]string)
     
@@ -98,7 +99,7 @@ func Urls(filename string) map[string]string{
     }
     err1 := scanner.Err()
     check(err1)
-
+    log.Println("INFO:URLs extracted")	
     return urls
 }
 
@@ -173,10 +174,10 @@ func load(rows map[string]int){
 
 func main() {
 	urls := Urls("./urls.txt")
-	for _,element := range(urls){
+	/*for _,element := range(urls){
 	    go transform(extract(element))
 	}	
-	/*data := transform(extract(url))
+	data := transform(extract(url))
 
 	load(data)*/
 }
