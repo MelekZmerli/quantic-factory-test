@@ -68,9 +68,9 @@ func NewEnvironement() *Environement{
 
 
 // check for errors 
-func check(e error) {
+func check(e error,msg string) {
     if e != nil {
-        log.Fatal(e)
+        log.Fatal(msg)
     }
 }
 
@@ -83,12 +83,12 @@ func Year(url string) string{
 
 // get urls and year of dataset from url 
 func Urls(filename string) map[string]string{
-    log.Println("INFO:extracting URLs...")
+    log.Println("INFO: extracting URLs...")
     uri := "https://opendata.paris.fr/api/records/1.0/search/?dataset="
     urls := make(map[string]string)
     
     file, err := os.Open(filename)
-    check(err)
+    check(err,"ERROR: File not found.")
     defer file.Close()
     
     scanner := bufio.NewScanner(file)
@@ -97,9 +97,9 @@ func Urls(filename string) map[string]string{
         year := Year(url)
 	urls[year] = url
     }
-    err1 := scanner.Err()
-    check(err1)
-    log.Println("INFO:URLs extracted")	
+    err = scanner.Err()
+    check(err,"ERROR: Reading files failed. Problem with scanner.")
+    log.Println("INFO: URLs extracted")	
     return urls
 }
 
@@ -108,7 +108,7 @@ func envVariable(key string) string {
 	
 	err := godotenv.Load(".env")
 
-	check(err)
+	check(err,"ERROR: Environment variables can't be read from .env file.")
 
   return os.Getenv(key)
 }
@@ -117,10 +117,10 @@ func envVariable(key string) string {
 func extract(url string) string {
 	response, err := http.Get(url)
 
-	check(err)
+	check(err,"ERROR: Can't reach url. Check for network problems or verify url.")
 
     	responseData, err := ioutil.ReadAll(response.Body)
-    	check(err)
+    	check(err,"ERROR: JSON Response can't be read. Problem with ioutil tool.")
    	return string(responseData)
 }
 
@@ -142,9 +142,9 @@ func load(rows map[string]int){
     env := NewEnvironement()
     dbPath := env.User+":"+env.Password+"@tcp(127.0.0.1:"+env.Port+")/"+env.Database
     db, err := sql.Open("mysql",dbPath)
-    check(err)
+    check(err,"ERROR: Couldn't connect to mysql database.")
     res, err := db.Query("SHOW TABLES")
-    check(err)
+    check(err,"ERROR: sql command didn't work.")
 
     var table string
 
@@ -164,10 +164,10 @@ func load(rows map[string]int){
     query = query + strings.Join(inserts,",")
     /*stmt, err := db.Prepare(query)
 
-    check(err)
+    check(err,"ERROR: Fail preparing query.")
 
     res, err := stmt.Exec(params...)   
-    check(err)
+    check(err,"ERROR: couldn't execute query.")
     fmt.Println(res)*/
     defer db.Close()
 }
