@@ -1,0 +1,6 @@
+secteurs-des-bureaux-de-vote-leg-2022&q=&rows=0&facet=arrondissement
+secteurs-des-bureaux-de-vote-en-2021&q=&rows=0&facet=arrondissement
+secteurs-des-bureaux-de-vote-en-2020&q=&rows=0&facet=arrondissement
+secteurs-des-bureaux-de-vote-en-2017&q=&rows=0&facet=arrondissement
+zones-de-rattachement-des-bureaux-de-vote-en-2014&q=&rows=0&facet=num_arr
+zones-de-rattachement-des-bureaux-de-vote-en-2012&q=&rows=0&facet=arrondisse
